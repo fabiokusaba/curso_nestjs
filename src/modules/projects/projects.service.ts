@@ -33,7 +33,14 @@ export class ProjectsService {
     })
   }
 
-  remove(id: string) {
+  async remove(id: string) {
+    // Exclusão relacionamento 1-N -> primeiro excluímos os elementos filhos para depois excluirmos o elemento pai
+    await this.prisma.task.deleteMany({
+      where: {
+        projectId: id,
+      },
+    })
+
     return this.prisma.project.delete({
       where: {
         id,
