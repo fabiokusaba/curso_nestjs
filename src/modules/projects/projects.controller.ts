@@ -4,14 +4,16 @@ import {
   Delete,
   Get,
   HttpCode,
-  HttpException,
   HttpStatus,
   Param,
   ParseUUIDPipe,
   Post,
   Put,
+  UseInterceptors,
 } from '@nestjs/common'
 import { ApiResponse } from '@nestjs/swagger'
+import { ValidateResourcesIds } from '../common/decorators/validate-resources-ids.decorator'
+import { ValidateResourcesIdsInterceptor } from '../common/interceptors/validate-resources-ids.interceptor'
 import { ProjectListItemDTO, ProjectRequestDTO } from './projects.dto'
 import { ProjectsService } from './projects.service'
 
@@ -19,6 +21,7 @@ import { ProjectsService } from './projects.service'
   version: '1',
   path: 'projects',
 })
+@UseInterceptors(ValidateResourcesIdsInterceptor)
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
@@ -34,14 +37,9 @@ export class ProjectsController {
   @ApiResponse({
     type: ProjectListItemDTO,
   })
+  @ValidateResourcesIds()
   async findOne(@Param('id', ParseUUIDPipe) id: string) {
-    const project = await this.projectsService.findById(id)
-
-    if (!project) {
-      throw new HttpException('Project not found', HttpStatus.NOT_FOUND)
-    }
-
-    return project
+    return await this.projectsService.findById(id)
   }
 
   @Post()
@@ -56,25 +54,15 @@ export class ProjectsController {
   @ApiResponse({
     type: ProjectListItemDTO,
   })
+  @ValidateResourcesIds()
   async update(@Param('id', ParseUUIDPipe) id: string, @Body() data: ProjectRequestDTO) {
-    const project = await this.projectsService.findById(id)
-
-    if (!project) {
-      throw new HttpException('Project not found', HttpStatus.NOT_FOUND)
-    }
-
-    return this.projectsService.update(id, data)
+    return await this.projectsService.update(id, data)
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ValidateResourcesIds()
   async remove(@Param('id', ParseUUIDPipe) id: string) {
-    const project = await this.projectsService.findById(id)
-
-    if (!project) {
-      throw new HttpException('Project not found', HttpStatus.NOT_FOUND)
-    }
-
-    return this.projectsService.remove(id)
+    return await this.projectsService.remove(id)
   }
 }
