@@ -11,6 +11,7 @@ import {
   Put,
 } from '@nestjs/common'
 import { TasksService } from './tasks.service'
+import { TaskDTO } from './tasks.dto'
 
 @Controller({
   version: '1',
@@ -25,7 +26,7 @@ export class TasksController {
   }
 
   @Post()
-  create(@Param('projectId', ParseUUIDPipe) projectId: string, @Body() data: any) {
+  create(@Param('projectId', ParseUUIDPipe) projectId: string, @Body() data: TaskDTO) {
     return this.tasksService.create(projectId, data)
   }
 
@@ -41,7 +42,7 @@ export class TasksController {
   update(
     @Param('projectId', ParseUUIDPipe) projectId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,
-    @Body() data: any,
+    @Body() data: TaskDTO,
   ) {
     return this.tasksService.update(projectId, taskId, data)
   }
