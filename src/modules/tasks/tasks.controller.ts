@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+} from '@nestjs/common'
 import { TasksService } from './tasks.service'
 
 @Controller({
@@ -36,6 +47,7 @@ export class TasksController {
   }
 
   @Delete(':taskId')
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(
     @Param('projectId', ParseUUIDPipe) projectId: string,
     @Param('taskId', ParseUUIDPipe) taskId: string,
