@@ -15,6 +15,30 @@ export class ProjectsService {
       where: {
         id,
       },
+      // Especificar os campos que vão ser retornados
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        createdAt: true,
+        updatedAt: true,
+        // Quando abrimos um objeto para um modelo de relacionamento o prisma nos oferece
+        // as mesmas propriedades que temos em project
+        tasks: {
+          // Dentro do select especifico quais os campos do modelo de tasks que eu gostaria
+          // de trazer
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            status: true,
+            priority: true,
+            dueDate: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
     })
   }
 
