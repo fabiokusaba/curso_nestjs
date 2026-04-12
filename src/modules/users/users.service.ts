@@ -5,10 +5,40 @@ import { PrismaService } from 'src/prisma.service'
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
+  findAll() {
+    return this.prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
+  }
+
   findById(id: string) {
     return this.prisma.user.findFirst({
       where: {
         id,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatar: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        createdProjects: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
       },
     })
   }
@@ -19,10 +49,6 @@ export class UsersService {
         email,
       },
     })
-  }
-
-  findAll() {
-    return this.prisma.user.findMany()
   }
 
   create(data: any) {
