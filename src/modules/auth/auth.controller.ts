@@ -1,7 +1,8 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common'
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger'
 import { SignInDTO, SignUpDTO } from './auth.dto'
 import { AuthService } from './auth.service'
+import { AuthGuard } from '@nestjs/passport'
 
 @Controller({
   version: '1',
@@ -22,5 +23,13 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   signin(@Body() data: SignInDTO) {
     return this.authService.signin(data)
+  }
+
+  @Get('protected')
+  @UseGuards(AuthGuard('jwt'))
+  protected() {
+    return {
+      message: 'Authenticated',
+    }
   }
 }
