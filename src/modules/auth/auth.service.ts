@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import * as bcrypt from 'bcrypt'
 import { PrismaService } from 'src/prisma.service'
 import { UsersService } from '../users/users.service'
-import { SignUpDTO } from './auth.dto'
+import { SignInDTO, SignUpDTO } from './auth.dto'
 
 @Injectable()
 export class AuthService {
@@ -24,6 +24,26 @@ export class AuthService {
     })
 
     // 3. Retornar o token JWT de acesso
-    
+    return {
+      token: this.jwtService.sign({
+        sub: newUser.id,
+      }),
+    }
+  }
+
+  async signin(data: SignInDTO) {
+    // Dado o email que o usuário passou na requisição precisamos validar esse usuário e a
+    // sua senha
+    const user = await this.userService.findByEmail(data.email)
+
+    if (user && (await bcrypt.compare(data.password, user.password))) {
+      return {
+        token: this.jwtService.sign({
+          sub: user.id,
+        }),
+      }
+    }
+
+    throw new UnauthorizedException('Email or password invalid')
   }
 }
