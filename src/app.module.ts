@@ -8,10 +8,11 @@ import { PrismaService } from './prisma.service'
 import { CollaboratorsModule } from './modules/collaborators/collaborators.module';
 import { CommentsModule } from './modules/comments/comments.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { RequestContextService } from './modules/common/services/request-context/request-context.service';
 
 @Module({
   imports: [ProjectsModule, TasksModule, UsersModule, CollaboratorsModule, CommentsModule, AuthModule],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [AppService, PrismaService, RequestContextService],
 })
 export class AppModule {}

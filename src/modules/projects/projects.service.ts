@@ -1,20 +1,33 @@
 import { Injectable } from '@nestjs/common'
 import { CollaboratorRole } from '@prisma/client'
 import { PrismaService } from 'src/prisma.service'
+import { RequestContextService } from '../common/services/request-context/request-context.service'
 import { ProjectRequestDTO } from './projects.dto'
 
 @Injectable()
 export class ProjectsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly requestContext: RequestContextService,
+  ) {}
 
   findAll() {
-    return this.prisma.project.findMany()
+    const userId = this.requestContext.getUserId()
+
+    return this.prisma.project.findMany({
+      where: {
+        createdById: userId,
+      },
+    })
   }
 
   findById(id: string) {
+    const userId = this.requestContext.getUserId()
+
     return this.prisma.project.findFirst({
       where: {
         id,
+        createdById: userId,
       },
       // Especificar os campos que vão ser retornados
       select: {
@@ -44,10 +57,12 @@ export class ProjectsService {
   }
 
   async create(data: ProjectRequestDTO) {
+    const userId = this.requestContext.getUserId()
+
     const project = await this.prisma.project.create({
       data: {
         ...data,
-        createdById: '123',
+        createdById: userId,
       },
     })
 
@@ -55,7 +70,7 @@ export class ProjectsService {
     await this.prisma.projectCollaborator.create({
       data: {
         projectId: project.id,
-        userId: '123',
+        userId: userId,
         role: CollaboratorRole.OWNER,
       },
     })
@@ -64,15 +79,20 @@ export class ProjectsService {
   }
 
   update(id: string, data: ProjectRequestDTO) {
+    const userId = this.requestContext.getUserId()
+
     return this.prisma.project.update({
       where: {
         id,
+        createdById: userId,
       },
       data,
     })
   }
 
   async remove(id: string) {
+    const userId = this.requestContext.getUserId()
+
     // Exclusão relacionamento 1-N -> primeiro excluímos os elementos filhos para depois excluirmos o elemento pai
     await this.prisma.task.deleteMany({
       where: {
@@ -83,6 +103,7 @@ export class ProjectsService {
     return this.prisma.project.delete({
       where: {
         id,
+        createdById: userId,
       },
     })
   }
