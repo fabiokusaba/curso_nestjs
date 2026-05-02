@@ -3,7 +3,7 @@ import { AuthGuard } from '@nestjs/passport'
 import { ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger'
 import type { User } from '@prisma/client'
 import { AuthenticatedUser } from '../common/decorators/authenticated-user.decorator'
-import { SignInDTO, SignUpDTO } from './auth.dto'
+import { ForgotPasswordDTO, ResetPasswordDTO, SignInDTO, SignUpDTO } from './auth.dto'
 import { AuthService } from './auth.service'
 
 @Controller({
@@ -33,5 +33,19 @@ export class AuthController {
     return {
       message: `Authenticated! ${user.email}`,
     }
+  }
+
+  @Post('forgot-password')
+  @ApiOkResponse()
+  @HttpCode(HttpStatus.OK)
+  forgotPassword(@Body() data: ForgotPasswordDTO) {
+    return this.authService.forgotPassword(data.email)
+  }
+
+  @Post('reset-password')
+  @ApiOkResponse()
+  @HttpCode(HttpStatus.OK)
+  resetPassword(@Body() data: ResetPasswordDTO) {
+    return this.authService.resetPassword(data.token, data.newPassword)
   }
 }
