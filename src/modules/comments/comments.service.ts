@@ -1,10 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from 'src/prisma.service'
+import { RequestContextService } from '../common/services/request-context/request-context.service'
 import { CommentRequestDTO } from './comments.dto'
 
 @Injectable()
 export class CommentsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly requestContext: RequestContextService,
+  ) {}
 
   findAllByTask(taskId: string) {
     return this.prisma.comment.findMany({
@@ -51,11 +55,13 @@ export class CommentsService {
   }
 
   create(taskId: string, data: CommentRequestDTO) {
+    const userId = this.requestContext.getUserId()
+
     return this.prisma.comment.create({
       data: {
         content: data.content,
         taskId,
-        authorId: '123',
+        authorId: userId,
       },
       include: {
         author: {
@@ -71,11 +77,14 @@ export class CommentsService {
   }
 
   async update(taskId: string, commentId: string, data: CommentRequestDTO) {
-    // Validar se o comentário existe
+    const userId = this.requestContext.getUserId()
+
+    // Validar se o comentário existe e pertence ao usuário logado
     const existingComment = await this.prisma.comment.findFirst({
       where: {
         id: commentId,
         taskId,
+        authorId: userId,
       },
     })
 
@@ -102,11 +111,14 @@ export class CommentsService {
   }
 
   async remove(taskId: string, commentId: string) {
-    // Validar se o comentário existe
+    const userId = this.requestContext.getUserId()
+
+    // Validar se o comentário existe e pertence ao usuário logado
     const existingComment = await this.prisma.comment.findFirst({
       where: {
         id: commentId,
         taskId,
+        authorId: userId,
       },
     })
 
